@@ -13,7 +13,7 @@ class FontShow:
 
         self.gbk_seal_font = ImageFont.truetype('FZXZTK.ttf', 460)
         self.seal_font = ImageFont.truetype('FZXZTFW.ttf', 460)
-        self.song_font = ImageFont.truetype('FZXKTK.ttf', 400)
+        self.normal_font = ImageFont.truetype('FZXKTK.ttf', 400)
 
         with open(sys.argv[1] if len(sys.argv) > 1 else 'simp.txt', 'r', encoding='utf8') as file:
             self.chars = list(file.read())
@@ -37,7 +37,7 @@ class FontShow:
         image = Image.new('RGB', img_size, color='white')
         draw = ImageDraw.Draw(image)
 
-        font = self.gbk_seal_font if self.seal else self.song_font
+        font = self.gbk_seal_font if self.seal else self.normal_font
         bbox = draw.textbbox((0, 0), self.chars[self.index], font=font)
         if self.seal and bbox[3] == bbox[1]:
             font = self.seal_font
