@@ -11,9 +11,9 @@ class FontShow:
         self.seal = True
         self.index = 0
 
-        self.gbk_seal_font = ImageFont.truetype('FZXZTK.ttf', 460)
-        self.seal_font = ImageFont.truetype('FZXZTFW.ttf', 460)
-        self.normal_font = ImageFont.truetype('FZXKTK.ttf', 400)
+        self.gbk_seal_font = ImageFont.truetype('FZXZTK.TTF', 460)
+        self.seal_font = ImageFont.truetype('FZXZTFW.TTF', 460)
+        self.normal_font = ImageFont.truetype('FZXKTK.TTF', 400)
 
         with open(sys.argv[1] if len(sys.argv) > 1 else 'simp.txt', 'r', encoding='utf8') as file:
             self.chars = list(file.read())
