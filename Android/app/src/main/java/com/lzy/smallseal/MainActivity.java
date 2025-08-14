@@ -31,8 +31,11 @@ public class MainActivity extends AppCompatActivity {
     private int index = 0;
     private boolean seal = true;
 
+    private Typeface gbkSealFont;
     private Typeface sealFont;
     private Typeface normalFont;
+
+    private String noGbk = "";
 
     private ImageView imageView;
     private GestureDetector gestureDetector;
@@ -46,24 +49,30 @@ public class MainActivity extends AppCompatActivity {
 
         clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 
+        gbkSealFont = Typeface.createFromAsset(getAssets(), "FZXZTK.TTF");
         sealFont = Typeface.createFromAsset(getAssets(), "FZXZTFW.TTF");
         normalFont = Typeface.createFromAsset(getAssets(), "FZXKTK.TTF");
 
         try {
             InputStream is = getAssets().open("simp.txt");
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                for (char c : line.toCharArray()) {
-                    chars.add(String.valueOf(c));
-                }
+            for (char c : reader.readLine().toCharArray()) {
+                chars.add(String.valueOf(c));
             }
+            Collections.shuffle(chars);
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Collections.shuffle(chars);
+        try {
+            InputStream is = getAssets().open("no_gbk.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            noGbk = reader.readLine();
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         gestureDetector = new GestureDetector(this, new GestureListener());
 
@@ -79,8 +88,16 @@ public class MainActivity extends AppCompatActivity {
 
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.BLACK);
-        paint.setTypeface(seal ? sealFont : normalFont);
         paint.setTextSize(seal ? 350 : 300);
+
+        if (seal) {
+            if (noGbk.contains(text))
+                paint.setTypeface(sealFont);
+            else
+                paint.setTypeface(gbkSealFont);
+        } else {
+            paint.setTypeface(normalFont);
+        }
 
         float textWidth = paint.measureText(text);
         Paint.FontMetrics fm = paint.getFontMetrics();
@@ -128,8 +145,34 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            String pasted = "";
+            if (clipboard.hasPrimaryClip()) {
+                ClipData clip = clipboard.getPrimaryClip();
+                if (clip != null && clip.getItemCount() > 0) {
+                    String text = clip.getItemAt(0).getText().toString();
+                    int i = 1;
+                    for (char c : text.toCharArray()) {
+                        if (c > 127) {
+                            pasted += c;
+                            chars.add(index + i, String.valueOf(c));
+                            i++;
+                        }
+                    }
+                    if (i > 1) {
+                        index++;
+                        seal = true;
+                        show();
+                    }
+                }
+            }
+            Toast.makeText(MainActivity.this, pasted.isEmpty() ? "Nothing" : pasted, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
+        @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            slide(!(velocityX > 0));
+            slide(velocityX > 0);
             show();
             return true;
         }
