@@ -1,5 +1,8 @@
 package com.lzy.smallseal;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,6 +12,7 @@ import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,12 +36,15 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView imageView;
     private GestureDetector gestureDetector;
+    private ClipboardManager clipboard;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         imageView = new ImageView(this);
         setContentView(imageView);
+
+        clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 
         sealFont = Typeface.createFromAsset(getAssets(), "FZXZTFW.TTF");
         normalFont = Typeface.createFromAsset(getAssets(), "FZXKTK.TTF");
@@ -110,6 +117,14 @@ public class MainActivity extends AppCompatActivity {
             seal = !seal;
             show();
             return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            String text = chars.get(index);
+            ClipData clip = ClipData.newPlainText("char", text);
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
         }
 
         @Override
