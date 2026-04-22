@@ -11,13 +11,18 @@ class FontShow:
         self.seal = True
         self.index = 0
 
-        self.gbk_seal_font = ImageFont.truetype('FZXZTK.TTF', 460)
-        self.seal_font = ImageFont.truetype('FZXZTFW.TTF', 460)
-        self.normal_font = ImageFont.truetype('FZXKTK.TTF', 400)
-
         with open(sys.argv[1] if len(sys.argv) > 1 else 'simp.txt', 'r', encoding='utf8') as file:
             self.chars = list(file.read())
             random.shuffle(self.chars)
+
+        self.normal_font = ImageFont.truetype('FZXKTK.TTF', 400)
+
+        if len(sys.argv) > 1 and 'oracle' in sys.argv[1]:
+            self.main_seal_font = ImageFont.truetype('FZJIAGW.TTF', 460)
+            self.sub_seal_font = None
+        else:
+            self.main_seal_font = ImageFont.truetype('FZXZTK.TTF', 460)
+            self.sub_seal_font = ImageFont.truetype('FZXZTFW.TTF', 460)
 
         self.fig, ax = plt.subplots(figsize=(200, 200), dpi=1)
         self.im = ax.imshow(self.get_img())
@@ -37,10 +42,10 @@ class FontShow:
         image = Image.new('RGB', img_size, color='white')
         draw = ImageDraw.Draw(image)
 
-        font = self.gbk_seal_font if self.seal else self.normal_font
+        font = self.main_seal_font if self.seal else self.normal_font
         bbox = draw.textbbox((0, 0), self.chars[self.index], font=font)
-        if self.seal and bbox[3] == bbox[1]:
-            font = self.seal_font
+        if self.sub_seal_font and self.seal and bbox[3] == bbox[1]:
+            font = self.sub_seal_font
             bbox = draw.textbbox((0, 0), self.chars[self.index], font=font)
 
         text_width = bbox[2] - bbox[0]
