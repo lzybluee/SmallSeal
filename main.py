@@ -1,6 +1,9 @@
 import random
 import sys
 
+import matplotlib
+matplotlib.use("TkAgg")
+
 import matplotlib.pyplot as plt
 import pyperclip
 from PIL import Image, ImageDraw, ImageFont
